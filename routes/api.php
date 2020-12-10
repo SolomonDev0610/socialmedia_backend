@@ -20,7 +20,6 @@ Route::post('token', 'CertificateController@authenticate');
 Route::post('emailVerify', 'CommonController@emailVerify');
 
 ##################### auth ################################
-############################################################
 Route::group(['middleware'=>'jwt.auth'], function () {
 //********* profile *********
     Route::get('getProfile', 'ProfileController@getProfile');
