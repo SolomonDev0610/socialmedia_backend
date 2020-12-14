@@ -27,4 +27,24 @@ Route::group(['middleware'=>'jwt.auth'], function () {
 //********** common ************
     Route::post('uploadPhoto', 'CommonController@uploadPhoto');
     Route::post('getUserInfo', 'CommonController@getUserInfo');
+
+//********** politicalParties ************
+    Route::post('createPoliticalParty', 'PoliticalPartyController@createPoliticalParty');
+    Route::post('createPoliticalParty', 'PoliticalPartyController@updatePoliticalParty');
+    Route::get('getPoliticalPartyList', 'PoliticalPartyController@getPoliticalPartyList');
+    Route::get('getPoliticalPartyDetail', 'PoliticalPartyController@getPoliticalPartyDetail');
+    Route::post('deletePoliticalParty', 'PoliticalPartyController@deletePoliticalParty');
+
+//********** Posts ************
+    Route::apiResource('/posts', 'PostController');
+    Route::get('get_total_score', 'PostController@get_total_score');
+    Route::get('get_scores_by_party', 'PostController@get_scores_by_party');
+    Route::get('post_count', 'PostController@post_count');
+
+//********** Comments ************
+    Route::apiResource('/comments', 'CommentController');
+    Route::get('getChildComments', 'CommentController@getChildComments');
+    Route::get('upVote', 'CommentController@upVote');
+    Route::get('downVote', 'CommentController@downVote');
+    Route::get('Comment_count', 'CommentController@Comment_count');
 });

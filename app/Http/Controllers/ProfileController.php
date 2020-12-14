@@ -13,14 +13,12 @@ class ProfileController extends Controller
     public function getProfile(Request $request)
     {
         $user = auth()->user();
-//        $staff = Staffs::with('user')->where('userid', $user->id)->get();
         return response()->json(['data'=>$user]);
     }
     public function getAdminProfile(Request $request)
     {
         $user = auth()->user();
-        $staff = Staffs::with('user')->where('userid', $user->id)->get();
-        return response()->json(['data'=>$staff]);
+        return response()->json(['data'=>$user]);
     }
     public function updateProfile(Request $request){
         $user = auth()->user();
