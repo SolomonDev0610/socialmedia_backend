@@ -21,12 +21,11 @@ Route::post('emailVerify', 'CommonController@emailVerify');
 
 ##################### auth ################################
 Route::group(['middleware'=>'jwt.auth'], function () {
-//********* profile *********
-    Route::get('getProfile', 'ProfileController@getProfile');
-    Route::get('getAdminProfile', 'ProfileController@getAdminProfile');
 //********** common ************
+    Route::post('changeProfilePhoto', 'CommonController@uploadPhoto');
     Route::post('uploadPhoto', 'CommonController@uploadPhoto');
-    Route::post('getUserInfo', 'CommonController@getUserInfo');
+    Route::get('getUserInfo', 'CommonController@getUserInfo');
+    Route::post('saveUserInfo', 'CommonController@saveUserInfo');
 
 //********** politicalParties ************
     Route::post('createPoliticalParty', 'PoliticalPartyController@createPoliticalParty');

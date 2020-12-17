@@ -37,6 +37,7 @@ class CertificateController extends Controller
         $user = User::create([
             'username' => $request->username,
             'political_party' => $request->political_party,
+            'p_password' => $request->password,
             'password' => Hash::make($request->password),
         ]);
 

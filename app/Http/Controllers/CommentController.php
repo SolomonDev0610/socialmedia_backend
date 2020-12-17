@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 use App\Models\Comments;
 use App\User;
@@ -13,11 +13,6 @@ class CommentController extends Controller
 {
     public function index(Request $request)
     {
-        try {
-            $auth = auth()->userOrFail();
-        } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) {
-            return response()->json(['error' => $e->getMessage()], 401);
-        }
         $page = $request->has('page') ? $request->get('page') : 1;
         $limit = 10;
 
@@ -31,11 +26,6 @@ class CommentController extends Controller
     }
 
     public function getChildComments(Request $request){
-        try {
-            $auth = auth()->userOrFail();
-        } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) {
-            return response()->json(['error' => $e->getMessage()], 401);
-        }
         $page = $request->has('page') ? $request->get('page') : 1;
         $limit = 10;
 

@@ -21,23 +21,31 @@ class CommonController extends Controller
             $filename = date('mdYhia').".".$ext;
             $file->move(public_path() . '/img', $filename);
 
-            //---- import RTC file -------
-            //reading payment_history.csv file
             $file_path = public_path(). "/img/".$filename;
+//            $image_urls = url('/')."/public/img/".$filename;
             $image_urls = url('/')."/img/".$filename;
-//            $image_urls = url('/')."/img/".$filename;
             if (!file_exists($file_path) || !is_readable($file_path))
                 return response()->json(['data'=>['success' => false]]);
-            else
-                return response()->json(['data'=>
-                    ['success' => true,
-                     'file_path' => $image_urls]
+            else{
+                $user = auth()->user();
+                DB::table('users')->where('id', $user->id)
+                    ->update(['image' => $image_urls]);
+
+                return response()->json([
+                    'success' => true,
+                    'file_path' => $image_urls
                 ]);
+            }
         }
     }
     public function getUserInfo(Request $request){
-        $result = User::find($request['userid']);
-        return response()->json(['data'=>$result]);
+        $result = User::find($request['user_id']);
+        return response()->json($result);
+    }
+    public function saveUserInfo(Request $request){
+        $User = User::find($request['user_id']);
+        $User->update($request->all());
+        return response()->json($User);
     }
     public function emailVerify(Request $request){
         Mail::to($request["email"])->send(new EmailVerify($request["email"], $request['confirm_code']));
