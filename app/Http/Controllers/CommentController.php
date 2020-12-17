@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Comments;
+use App\Model\Comments;
 use App\User;
 use Dotenv\Validator;
 use Illuminate\Http\Request;
@@ -30,8 +30,7 @@ class CommentController extends Controller
         $limit = 10;
 
         $Comments = Comments::with(['user'])
-            ->Where('parent_id', $request->post_id)
-            ->Where('depth', $request->depth)
+            ->Where('parent_id', $request->parent_id)
             ->skip(($page - 1) * $limit)
             ->limit($limit)
             ->orderBy('point', 'asc')->get();
@@ -51,8 +50,8 @@ class CommentController extends Controller
             $comment->point += 4;
         else
             $comment->point += 1;
-        $comment->like_count ++;
 
+        $comment->like_count ++;
         $comment->save();
 
         return response()->json(['data'=>['success' => true]]);
@@ -61,7 +60,7 @@ class CommentController extends Controller
     public function downVote(Request $request){
         try {
             $auth = auth()->userOrFail();
-        } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) {
+        }catch(\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e){
             return response()->json(['error' => $e->getMessage()], 401);
         }
 
@@ -72,7 +71,6 @@ class CommentController extends Controller
         $comment->like_count --;
 
         $comment->save();
-
         return response()->json(['data'=>['success' => true]]);
     }
 
