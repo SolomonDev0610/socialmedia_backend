@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Model\Comments;
 use App\User;
+use DB;
 use Dotenv\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +25,18 @@ class CommentController extends Controller
 
         return $Comments->toJson(JSON_PRETTY_PRINT);
     }
+    public function getAllLevelChildIds(Request $request){
 
+        $query = "select * from comments where parent_id = ".$request->parent_id."
+                  union select * from comments where parent_id in(select id from comments where parent_id=".$request->parent_id.")";
+
+        $query_result =DB::select($query);
+        $result = [];
+        foreach($query_result as $item){
+            array_push($result, $item->id);
+        }
+        return response()->json(['child_ids'=> $result]);
+    }
     public function getChildComments(Request $request){
         $page = $request->has('page') ? $request->get('page') : 1;
         $limit = 10;

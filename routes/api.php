@@ -43,6 +43,7 @@ Route::group(['middleware'=>'jwt.auth'], function () {
 //********** Comments ************
     Route::apiResource('/comments', 'CommentController');
     Route::get('getChildComments', 'CommentController@getChildComments');
+    Route::get('getAllLevelChildIds', 'CommentController@getAllLevelChildIds');
     Route::get('upVote', 'CommentController@upVote');
     Route::get('downVote', 'CommentController@downVote');
     Route::get('Comment_count', 'CommentController@Comment_count');
