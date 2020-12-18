@@ -103,7 +103,13 @@ class CommentController extends Controller
 
     public function store(Request $request)
     {
-        return Comments::create($request->all());
+        $create_result = Comments::create($request->all());
+
+        $parent_comment= Comments::find($request->parent_id);
+        Comments::where('id', $request->parent_id)->limit(1)->update([
+            'child_count' => $parent_comment->child_count + 1]);
+
+        return $create_result->toJson(JSON_PRETTY_PRINT);
     }
 
     public function show($id)
