@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Model\Comments;
+use App\Model\Posts;
 use App\User;
 use DB;
 use Dotenv\Validator;
@@ -18,6 +19,7 @@ class CommentController extends Controller
         $limit = 10;
 
         $Comments = Comments::with(['user'])
+            ->Where('depth', 1)
             ->Where('post_id', $request->post_id)
             ->skip(($page - 1) * $limit)
             ->limit($limit)
@@ -105,11 +107,20 @@ class CommentController extends Controller
     {
         $create_result = Comments::create($request->all());
 
-        $parent_comment= Comments::find($request->parent_id);
-        Comments::where('id', $request->parent_id)->limit(1)->update([
-            'child_count' => $parent_comment->child_count + 1]);
+        //----- update the reply count of the parent comment or post
+        if($request->depth != 1){
+            $parent_comment= Comments::find($request->parent_id);
+            Comments::where('id', $request->parent_id)->limit(1)->update([
+                'child_count' => $parent_comment->child_count + 1]);
+        }else{
+            $post= Posts::find($request->post_id);
+            Posts::where('id', $request->post_id)->limit(1)->update([
+                'comment_count' => $post->comment_count + 1]);
+        }
 
-        return $create_result->toJson(JSON_PRETTY_PRINT);
+        $created_comment = Comments::with(['user'])->find($create_result->id);
+
+        return $created_comment->toJson(JSON_PRETTY_PRINT);
     }
 
     public function show($id)

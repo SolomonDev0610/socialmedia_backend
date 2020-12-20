@@ -24,7 +24,7 @@ class PostController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
-            $Posts = Posts::with(['user'])
+            $Posts = Posts::with(['user','comments.user'])
                 ->Where(['content','like' ,'%'.$filter.'%'])
                 ->skip(($page - 1) * $limit)
                 ->limit($limit)
@@ -72,7 +72,12 @@ class PostController extends Controller
     }
     public function store(Request $request)
     {
-        return Posts::create($request->all());
+        $create_result =  Posts::create($request->all());
+
+        //----- update the reply count of the parent comment or post
+
+        $created_post = Posts::with(['user','comments.user'])->find($create_result->id);
+        return $created_post->toJson(JSON_PRETTY_PRINT);
     }
 
     public function show($id)

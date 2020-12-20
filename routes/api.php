@@ -20,7 +20,7 @@ Route::post('token', 'CertificateController@authenticate');
 Route::post('emailVerify', 'CommonController@emailVerify');
 
 ##################### auth ################################
-Route::group(['middleware'=>'jwt.auth'], function () {
+//Route::group(['middleware'=>'jwt.auth'], function () {
 //********** common ************
     Route::post('changeProfilePhoto', 'CommonController@uploadPhoto');
     Route::post('uploadPhoto', 'CommonController@uploadPhoto');
@@ -47,4 +47,4 @@ Route::group(['middleware'=>'jwt.auth'], function () {
     Route::get('upVote', 'CommentController@upVote');
     Route::get('downVote', 'CommentController@downVote');
     Route::get('Comment_count', 'CommentController@Comment_count');
-});
+//});
