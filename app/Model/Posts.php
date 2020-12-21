@@ -16,6 +16,6 @@ class Posts extends Model
         return $this->belongsTo('App\User', 'user_id');
     }
     public function comments(){
-        return $this->hasMany('App\Model\Comments', 'post_id');
+        return $this->hasMany('App\Model\Comments', 'join_post_id');
     }
 }

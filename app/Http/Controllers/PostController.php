@@ -26,6 +26,7 @@ class PostController extends Controller
         } else {
             $Posts = Posts::with(['user','comments.user'])
                 ->Where(['content','like' ,'%'.$filter.'%'])
+                ->orWhere(['title','like' ,'%'.$filter.'%'])
                 ->skip(($page - 1) * $limit)
                 ->limit($limit)
                 ->orderBy('created_at', 'desc')
@@ -36,30 +37,25 @@ class PostController extends Controller
     }
 
     public function get_total_score(Request $request){
-        $query = "select  id, sum(point) as total_point
-                from (select * from comments order by parent_id id) children_sorted,
-                (select @pv := 1) initialisation
-                where   find_in_set(parent_id, @pv) > 0
-                and @pv := concat(@pv, ',', id)";
+        $query = "select sum(point) as total_score from comments where post_id=".$request->post_id;
         $result = DB::select($query);
-        return response()->json(['data'=>$result[0]->total_point]);
+        return response()->json(['data'=>$result[0]->total_score]);
     }
 
     public function get_scores_by_party(Request $request){
-        $query ="select  id, sum(point) as total_point
-                 from (select * from comments where political_party_id = 1 order by parent_id id) children_sorted,
-                 (select @pv := 1) initialisation where find_in_set(parent_id, @pv) > 0 and @pv := concat(@pv, ',', id)";
+
+        $query = "select sum(point) as republican_total_score from comments
+                  where post_id=".$request->post_id." and political_party_id=1";
         $result1 = DB::select($query);
 
-        $query ="select  id, sum(point) as total_point
-                 from (select * from comments where political_party_id = 2 order by parent_id id) children_sorted,
-                 (select @pv := 1) initialisation where find_in_set(parent_id, @pv) > 0 and @pv := concat(@pv, ',', id)";
+        $query = "select sum(point) as democratic_total_score from comments
+                  where post_id=".$request->post_id." and political_party_id=2";
         $result2 = DB::select($query);
 
-        return response()->json(['data'=>[
-            'Democratic' => $result1[0]->total_point,
-            'Republican' => $result2[0]->total_point,
-            ]]);
+        return response()->json([
+            'republican_total_score' => $result1[0]->republican_total_score,
+            'democratic_total_score' => $result2[0]->democratic_total_score,
+            ]);
     }
 
     public function post_count(Request $request)

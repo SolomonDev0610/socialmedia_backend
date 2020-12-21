@@ -23,7 +23,7 @@ class CommentController extends Controller
             ->Where('post_id', $request->post_id)
             ->skip(($page - 1) * $limit)
             ->limit($limit)
-            ->orderBy('point', 'asc')->get();
+            ->orderBy('created_at', 'desc')->get();
 
         return $Comments->toJson(JSON_PRETTY_PRINT);
     }
@@ -47,44 +47,35 @@ class CommentController extends Controller
             ->Where('parent_id', $request->parent_id)
             ->skip(($page - 1) * $limit)
             ->limit($limit)
-            ->orderBy('point', 'asc')->get();
+            ->orderBy('created_at', 'desc')->get();
 
         return $Comments->toJson(JSON_PRETTY_PRINT);
     }
 
     public function upVote(Request $request){
-        try {
-            $auth = auth()->userOrFail();
-        } catch (\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e) {
-            return response()->json(['error' => $e->getMessage()], 401);
-        }
 
         $comment = Comments::find($request->comment_id);
-        if($comment->political_party_id != $auth->political_party_id)
-            $comment->point += 4;
-        else
-            $comment->point += 1;
-
-        $comment->like_count ++;
+        $comment->point += $request->add_point;
         $comment->save();
+
+        $post= Posts::find($request->post_id);
+        $post->total_point += $request->add_point;
+        if($comment->political_party_id == 1)
+            $post->point1 += $request->add_point;
+        if($comment->political_party_id == 2)
+            $post->point2 += $request->add_point;
+
+        $post->save();
 
         return response()->json(['data'=>['success' => true]]);
     }
 
     public function downVote(Request $request){
-        try {
-            $auth = auth()->userOrFail();
-        }catch(\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e){
-            return response()->json(['error' => $e->getMessage()], 401);
-        }
 
         $comment = Comments::find($request->comment_id);
-        if($comment->political_party_id == $auth->political_party_id)
-            $comment->point -= 1;
-
-        $comment->like_count --;
-
+        $comment->point += $request->add_point;
         $comment->save();
+
         return response()->json(['data'=>['success' => true]]);
     }
 
