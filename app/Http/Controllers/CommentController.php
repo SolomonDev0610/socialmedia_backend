@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Model\Comments;
 use App\Model\Posts;
+use App\Model\CommentVoteUsers;
 use App\User;
 use DB;
 use Dotenv\Validator;
@@ -54,20 +55,35 @@ class CommentController extends Controller
 
     public function upVote(Request $request){
 
-        $comment = Comments::find($request->comment_id);
-        $comment->point += $request->add_point;
-        $comment->save();
+        //add the user into vote_user list
+        $comment_vote_user= CommentVoteUsers::where('user_id', $request->user_id)->get();
+        if(count($comment_vote_user) > 0){
+            return response()->json(['data'=>'duplicated']);
+        }{
+            //update the point of comment
+            $comment = Comments::find($request->comment_id);
+            $comment->point += $request->add_point;
+            $comment->save();
 
-        $post= Posts::find($request->post_id);
-        $post->total_point += $request->add_point;
-        if($comment->political_party_id == 1)
-            $post->point1 += $request->add_point;
-        if($comment->political_party_id == 2)
-            $post->point2 += $request->add_point;
+            //update the point of post
+            $post= Posts::find($request->post_id);
+            $post->total_point += $request->add_point;
+            if($comment->political_party_id == 1)
+                $post->point1 += $request->add_point;
+            if($comment->political_party_id == 2)
+                $post->point2 += $request->add_point;
+            $post->save();
 
-        $post->save();
+            //add the user in the comment_vote_list
+            $values = array('comment_id' => $request->comment_id,
+                'user_id' => $request->user_id);
 
-        return response()->json(['data'=>['success' => true]]);
+            DB::table('comment_vote_users')->insert($values);
+
+            return response()->json(['data'=>'success']);
+        }
+
+
     }
 
     public function downVote(Request $request){
