@@ -36,6 +36,7 @@ Route::group(['middleware'=>'jwt.auth'], function () {
 
 //********** Posts ************
     Route::apiResource('/posts', 'PostController');
+    Route::get('searchPost', 'PostController@searchPost');
     Route::get('get_total_score', 'PostController@get_total_score');
     Route::get('get_scores_by_party', 'PostController@get_scores_by_party');
     Route::get('post_count', 'PostController@post_count');

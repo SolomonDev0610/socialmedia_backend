@@ -17,25 +17,30 @@ class PostController extends Controller
         $limit = 10;
         $filter = $request->searchText;
 
-        if ($filter == null) {
-            $Posts = Posts::with(['user','comments.user'])
-                ->skip(($page - 1) * $limit)
-                ->limit($limit)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        } else {
-            $Posts = Posts::with(['user','comments.user'])
-                ->Where(['content','like' ,'%'.$filter.'%'])
-                ->orWhere(['title','like' ,'%'.$filter.'%'])
-                ->skip(($page - 1) * $limit)
-                ->limit($limit)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        }
+        $Posts = Posts::with(['user','comments.user'])
+            ->skip(($page - 1) * $limit)
+            ->limit($limit)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return $Posts->toJson(JSON_PRETTY_PRINT);
     }
+    public function searchPost(Request $request)
+    {
+        $page = $request->has('page') ? $request->get('page') : 1;
+        $limit = 10;
+        $filter = $request->searchText;
 
+        $Posts = Posts::with(['user','comments.user'])
+            ->Where('contents','like' ,'%'.$filter.'%')
+            ->orWhere('title','like' ,'%'.$filter.'%')
+            ->skip(($page - 1) * $limit)
+            ->limit($limit)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $Posts->toJson(JSON_PRETTY_PRINT);
+    }
     public function get_total_score(Request $request){
         $query = "select sum(point) as total_score from comments where post_id=".$request->post_id;
         $result = DB::select($query);

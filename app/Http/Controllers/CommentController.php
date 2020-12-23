@@ -56,7 +56,9 @@ class CommentController extends Controller
     public function upVote(Request $request){
 
         //add the user into vote_user list
-        $comment_vote_user= CommentVoteUsers::where('user_id', $request->user_id)->get();
+        $comment_vote_user= CommentVoteUsers::where('user_id', $request->user_id)
+            ->where('comment_id', $request->comment_id)
+            ->get();
         if(count($comment_vote_user) > 0){
             return response()->json(['data'=>'duplicated']);
         }{
@@ -74,6 +76,14 @@ class CommentController extends Controller
                 $post->point2 += $request->add_point;
             $post->save();
 
+            //update the point of user
+            $sum_query = "select sum(total_point) as user_total_point from posts where user_id=".$request->user_id;
+            $sum_result = DB::select($sum_query);
+
+            $post= User::find($request->user_id);
+            $post->earned_score = $sum_result[0]->user_total_point;
+            $post->save();
+
             //add the user in the comment_vote_list
             $values = array('comment_id' => $request->comment_id,
                 'user_id' => $request->user_id);
@@ -82,8 +92,6 @@ class CommentController extends Controller
 
             return response()->json(['data'=>'success']);
         }
-
-
     }
 
     public function downVote(Request $request){
