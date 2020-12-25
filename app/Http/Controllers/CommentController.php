@@ -28,6 +28,18 @@ class CommentController extends Controller
 
         return $Comments->toJson(JSON_PRETTY_PRINT);
     }
+    public function loadMoreComments(Request $request){
+        $limit = 5;
+
+        $Comments = Comments::with(['user'])
+            ->Where('depth', 1)
+            ->Where('post_id', $request->post_id)
+            ->skip($request->comment_count)
+            ->limit($limit)
+            ->orderBy('created_at', 'asc')->get();
+
+        return $Comments->toJson(JSON_PRETTY_PRINT);
+    }
     public function getAllLevelChildIds(Request $request){
 
         $query = "select * from comments where parent_id = ".$request->parent_id."

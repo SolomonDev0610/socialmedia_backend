@@ -13,15 +13,31 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $page = $request->has('page') ? $request->get('page') : 1;
-        $limit = 10;
-        $filter = $request->searchText;
+        $limit = 5;
 
         $Posts = Posts::with(['user','comments.user'])
-            ->skip(($page - 1) * $limit)
+            ->skip(0)
             ->limit($limit)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()->map(function($posts) {
+                $posts->setRelation('comments', $posts->comments->take(5));
+                return $posts;
+            });
+
+        return $Posts->toJson(JSON_PRETTY_PRINT);
+    }
+    public function loadMorePosts(Request $request)
+    {
+        $limit = 5;
+
+        $Posts = Posts::with(['user','comments.user'])
+            ->skip($request->post_count)
+            ->limit($limit)
+            ->orderBy('created_at', 'desc')
+            ->get()->map(function($posts) {
+                $posts->setRelation('comments', $posts->comments->take(5));
+                return $posts;
+            });
 
         return $Posts->toJson(JSON_PRETTY_PRINT);
     }
@@ -37,7 +53,10 @@ class PostController extends Controller
             ->skip(($page - 1) * $limit)
             ->limit($limit)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()->map(function($posts) {
+                $posts->setRelation('comments', $posts->comments->take(5));
+                return $posts;
+            });
 
         return $Posts->toJson(JSON_PRETTY_PRINT);
     }

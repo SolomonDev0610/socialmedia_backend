@@ -22,8 +22,9 @@ class CommonController extends Controller
             $file->move(public_path() . '/img', $filename);
 
             $file_path = public_path(). "/img/".$filename;
-//            $image_urls = url('/')."/public/img/".$filename;
-            $image_urls = url('/')."/img/".$filename;
+
+            $image_urls = dirname(url('/'))."/socialmedia_backend/public/img/".$filename;
+//            $image_urls = url('/')."/img/".$filename;
             if (!file_exists($file_path) || !is_readable($file_path))
                 return response()->json(['data'=>['success' => false]]);
             else{

@@ -40,6 +40,7 @@ Route::group(['middleware'=>'jwt.auth'], function () {
     Route::get('get_total_score', 'PostController@get_total_score');
     Route::get('get_scores_by_party', 'PostController@get_scores_by_party');
     Route::get('post_count', 'PostController@post_count');
+    Route::get('loadMorePosts', 'PostController@loadMorePosts');
 
 //********** Comments ************
     Route::apiResource('/comments', 'CommentController');
@@ -48,4 +49,6 @@ Route::group(['middleware'=>'jwt.auth'], function () {
     Route::post('upVote', 'CommentController@upVote');
     Route::post('downVote', 'CommentController@downVote');
     Route::get('Comment_count', 'CommentController@Comment_count');
+    Route::get('loadMoreComments', 'CommentController@loadMoreComments');
+
 });
