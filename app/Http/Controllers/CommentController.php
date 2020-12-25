@@ -151,6 +151,17 @@ class CommentController extends Controller
     public function destroy($id)
     {
         $comment = Comments::find($id);
+        //----- update the reply count of the parent comment or post
+        if($comment->depth != 1){
+            $parent_comment= Comments::find($comment->parent_id);
+            Comments::where('id', $comment->parent_id)->limit(1)->update([
+                'child_count' => $parent_comment->child_count - 1]);
+        }else{
+            $post= Posts::find($comment->post_id);
+            Posts::where('id', $comment->post_id)->limit(1)->update([
+                'comment_count' => $post->comment_count - 1]);
+        }
+
         $comment->delete();
     }
 }
