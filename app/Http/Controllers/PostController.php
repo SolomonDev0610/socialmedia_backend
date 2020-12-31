@@ -13,7 +13,7 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $limit = 5;
+        $limit = 15;
 
         $Posts = Posts::with(['user','comments.user'])
             ->skip(0)

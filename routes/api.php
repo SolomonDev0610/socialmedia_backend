@@ -50,5 +50,5 @@ Route::group(['middleware'=>'jwt.auth'], function () {
     Route::post('downVote', 'CommentController@downVote');
     Route::get('Comment_count', 'CommentController@Comment_count');
     Route::get('loadMoreComments', 'CommentController@loadMoreComments');
-
+    Route::get('loadMoreChildComments', 'CommentController@loadMoreChildComments');
 });

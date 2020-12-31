@@ -40,6 +40,17 @@ class CommentController extends Controller
 
         return $Comments->toJson(JSON_PRETTY_PRINT);
     }
+    public function loadMoreChildComments(Request $request){
+        $limit = 5;
+
+        $Comments = Comments::with(['user'])
+            ->Where('parent_id', $request->comment_id)
+            ->skip($request->comment_count)
+            ->limit(5)
+            ->orderBy('created_at', 'asc')->get();
+
+        return $Comments->toJson(JSON_PRETTY_PRINT);
+    }
     public function getAllLevelChildIds(Request $request){
 
         $query = "select * from comments where parent_id = ".$request->parent_id."
@@ -54,7 +65,7 @@ class CommentController extends Controller
     }
     public function getChildComments(Request $request){
         $page = $request->has('page') ? $request->get('page') : 1;
-        $limit = 10;
+        $limit = 5;
 
         $Comments = Comments::with(['user'])
             ->Where('parent_id', $request->parent_id)
@@ -72,8 +83,35 @@ class CommentController extends Controller
             ->where('comment_id', $request->comment_id)
             ->get();
         if(count($comment_vote_user) > 0){
-            return response()->json(['data'=>'duplicated']);
-        }{
+            //update the point of comment
+            $point = -1 * $comment_vote_user[0]->point;
+            $comment = Comments::find($request->comment_id);
+            $comment->point += $point;
+            $comment->save();
+
+            //update the point of post
+            $post= Posts::find($request->post_id);
+            $post->total_point += $point;
+            if($comment->political_party_id == 1)
+                $post->point1 += $point;
+            if($comment->political_party_id == 2)
+                $post->point2 += $point;
+            $post->save();
+
+            //update the point of user
+            $sum_query = "select sum(total_point) as user_total_point from posts where user_id=".$request->user_id;
+            $sum_result = DB::select($sum_query);
+
+            $post= User::find($request->user_id);
+            $post->earned_score = $sum_result[0]->user_total_point;
+            $post->save();
+
+            //add the user in the comment_vote_list
+            CommentVoteUsers::where('user_id', $request->user_id)
+                ->where('comment_id', $request->comment_id)
+                ->delete();
+            return response()->json(['data'=>$point]);
+        }else{
             //update the point of comment
             $comment = Comments::find($request->comment_id);
             $comment->point += $request->add_point;
@@ -98,12 +136,14 @@ class CommentController extends Controller
 
             //add the user in the comment_vote_list
             $values = array('comment_id' => $request->comment_id,
-                'user_id' => $request->user_id);
+                'user_id' => $request->user_id,
+                'point' => $request->add_point,
+                );
 
             DB::table('comment_vote_users')->insert($values);
-
             return response()->json(['data'=>'success']);
         }
+
     }
 
     public function downVote(Request $request){
