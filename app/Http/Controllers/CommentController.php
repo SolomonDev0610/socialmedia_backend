@@ -24,7 +24,7 @@ class CommentController extends Controller
             ->Where('post_id', $request->post_id)
             ->skip(($page - 1) * $limit)
             ->limit($limit)
-            ->orderBy('created_at', 'desc')->get();
+            ->orderBy('point', 'desc')->get();
 
         return $Comments->toJson(JSON_PRETTY_PRINT);
     }
@@ -36,7 +36,7 @@ class CommentController extends Controller
             ->Where('post_id', $request->post_id)
             ->skip($request->comment_count)
             ->limit($limit)
-            ->orderBy('created_at', 'asc')->get();
+            ->orderBy('point', 'asc')->get();
 
         return $Comments->toJson(JSON_PRETTY_PRINT);
     }
@@ -47,7 +47,7 @@ class CommentController extends Controller
             ->Where('parent_id', $request->comment_id)
             ->skip($request->comment_count)
             ->limit(5)
-            ->orderBy('created_at', 'asc')->get();
+            ->orderBy('point', 'asc')->get();
 
         return $Comments->toJson(JSON_PRETTY_PRINT);
     }
@@ -71,7 +71,7 @@ class CommentController extends Controller
             ->Where('parent_id', $request->parent_id)
             ->skip(($page - 1) * $limit)
             ->limit($limit)
-            ->orderBy('created_at', 'desc')->get();
+            ->orderBy('point', 'desc')->get();
 
         return $Comments->toJson(JSON_PRETTY_PRINT);
     }
